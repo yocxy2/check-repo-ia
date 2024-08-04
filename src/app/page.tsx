@@ -1,35 +1,41 @@
 "use client"
-
 import { useState } from "react";
+import Item from "./Item";
+import InputSearch from "@/components/InputSearch";
+
 
 export default function Home() {
+  const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState("");
   const [files, setFiles] = useState([]);
   const [path, setPath] = useState("");
 
-  const handlerClick = async () => {
-    const [user, repo] = url.replaceAll(/(http|https):\/\/github.com\//g, "").replace("/"," ").trim().split(" ")
-    const response = await fetch(`/api/repo/${user}/${repo}`, {  })
-    const data = await response.json()
-    console.log(data.files)
-    setFiles(data.files)
-  }
 
-  const selectPath = (file, word) => () => {
-    if( word !== file.path.split("/").pop() ) {
-      setPath(word)
+  const handlerClick = async () => {
+    setLoading(true)
+    try{
+      const [user, repo] = url.replaceAll(/(http|https):\/\/github.com\//g, "").replace("/"," ").trim().split(" ")
+      const response = await fetch(`/api/repo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user, repo })
+      })
+      const data = await response.json()
+      console.log(data)
+      setFiles(data)
+    }catch(e){
+      console.error(e)
+    } finally {
+      setLoading(false)
     }
   }
 
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-24">
-      <form className="flex flex-col gap-0">
-        <span className="border border-indigo-600 bg-white rounded overflow-hidden py-1 px-2">
-          <input type="text" className="border-none outline-none" value={url} onChange={ev => setUrl(ev.target.value)} />
-          <button type="button" onClick={handlerClick}>Send</button>
-        </span>
-        <small>E</small>
-      </form>
+    <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-4xl mx-auto">
+      <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerClick} loading={loading} />
       <section className="flex flex-row gap-4">
         <span className="text-slate-400">Path: </span>
         <span className="text-slate-600">{path}</span>
@@ -38,14 +44,13 @@ export default function Home() {
       <section className="flex flex-col gap-4">
         <table className="table-auto">
         {files.filter( (file) => file.path?.includes(path) ).map((file, index) => (
-          <tr key={index}>
-            <td className="px-4 py-1 flex flex-row gap-0 text-slate-400">{file.path.split("/").map( word => <>
-              <span>/</span>
-              <button onClick={selectPath(file, word)} className="hover:text-slate-800 last:hover:text-slate-600 last:text-slate-600">{word}</button>
-            </> )}</td>
-            <td className="px-4 py-1">{ file?.details?.description }</td>
-            <td className="px-4 py-1">{ file?.details?.check ? "Si" : "No" }</td>
-          </tr>
+          <Item
+            key={index}
+            user={url.replaceAll(/(http|https):\/\/github.com\//g, "").replace("/"," ").trim().split(" ")[0]}
+            repo={url.replaceAll(/(http|https):\/\/github.com\//g, "").replace("/"," ").trim().split(" ")[1]}
+            file={file}
+            onClick={w=>setPath(w)}
+            />
         ))}
         </table>
       </section>
