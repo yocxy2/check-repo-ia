@@ -14,3 +14,8 @@ interface fileRepo {
         html: string
     }
 }
+
+interface FileType{
+    name: string,
+    path: string,
+}
