@@ -40,6 +40,20 @@ export default function Home() {
     return file?.path?.includes(path)
   }
 
+  const handlerChecked = (index:number, object:any) => {
+    console.log(index, object)
+    setFiles( prev => prev.map((file:FileType) => {
+      if( file.index === index ) {
+        return {
+          ...file,
+          numberFixes: object.fixes.length,
+          rate: object.rate
+        }
+      }
+      return file
+    }))
+  }
+
   return (
     <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-4xl mx-auto">
       <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerClick} loading={loading} />
@@ -52,6 +66,7 @@ export default function Home() {
               user={getFromUrl()[0]}
               repo={getFromUrl()[1]}
               file={file}
+              onChecked={handlerChecked}
               onClick={(selectedPath:string)=>setPath(selectedPath)}
               />
           ))}
