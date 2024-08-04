@@ -16,6 +16,10 @@ interface fileRepo {
 }
 
 interface FileType{
+    index: number,
     name: string,
     path: string,
+    numberFixes: number,
+    rate: number,
+    deep: number
 }
