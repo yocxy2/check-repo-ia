@@ -23,3 +23,9 @@ interface FileType{
     rate: number,
     deep: number
 }
+
+interface ContentType{
+    value: string,
+    fixes: string[],
+    rate: number
+}
