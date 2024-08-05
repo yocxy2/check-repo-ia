@@ -4,6 +4,7 @@ import { Editor } from "@monaco-editor/react"
 import { experimental_useObject as useObject } from "ai/react"
 import { checkSchema } from "@/app/api/file-check/schema"
 import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
+import HeaderEditor from "@/components/HeaderEditor"
 
 
 export default function CheckerFile({ user, repo, files }: { user:string, repo:string, files: FileType[] }) {
@@ -75,16 +76,15 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
             </ul>
         </nav>
         <div className="col-span-9 bg-white max-w-4xl w-full flex flex-col shadow-lg shadow-slate-800 border border-black">
-            <div className="border-b border-black border-opacity-50 py-2 px-4 font-bold text-lg flex flex-row justify-between items-center">
-                <label className="">{path} { content.rate===NOT_RATE ? "" : `(${content.rate})` }</label>
-                { content.rate===NOT_RATE && <button className="border border-black py-1 px-4 rounded-md" onClick={handlerCheckFile}>
-                    { isLoading ? "Checking..." : "Check" }
-                </button>}
-                { content.rate!==NOT_RATE && <nav className="text-sm font-normal flex flex-row p-0  border border-black rounded-lg overflow-hidden divide-x divide-black" >
-                    <button className={tab===CODE ? "bg-slate-300 font-semibold py-1 px-2" : "py-1 px-2"} onClick={()=>setTab(CODE)}>Code</button>
-                    <button className={tab===ISSUES ? "bg-slate-300 font-semibold py-1 px-2" : "py-1 px-2"} onClick={()=>setTab(ISSUES)}>Issues ({ content.fixes?.length })</button>
-                </nav>}
-            </div>
+            <HeaderEditor
+                title={path}
+                rate={content.rate}
+                fixesCount={content.fixes.length}
+                loading={isLoading}
+                currentTab={tab}
+                onCheck={handlerCheckFile}
+                onChange={setTab}
+             />
 
             { tab===CODE && <Editor
                 defaultLanguage="typescript"
