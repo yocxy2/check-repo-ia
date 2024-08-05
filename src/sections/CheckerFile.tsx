@@ -5,6 +5,7 @@ import { experimental_useObject as useObject } from "ai/react"
 import { checkSchema } from "@/app/api/file-check/schema"
 import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
 import HeaderEditor from "@/components/HeaderEditor"
+import NavigationDirectory from "@/components/NavigationDirectory"
 
 
 export default function CheckerFile({ user, repo, files }: { user:string, repo:string, files: FileType[] }) {
@@ -37,7 +38,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
     },[object, user, repo, path])
 
 
-    const handlerClick = (file:string) => async () => {
+    const handlerSelectFile = async (file:string) => {
         setLoading(true)
         setTab(CODE)
         setPath(file)
@@ -67,15 +68,11 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
     }
 
 
-    return <section className="w-full grid grid-cols-12 gap-5">
-        <nav className="col-span-3">
-            <ul className="flex flex-col gap-2 justify-start">
-                {files.map((file, index) => <li key={index} className="flex flex-row gap-1 items-center">
-                    <button className="" onClick={handlerClick(file.path)}>{file.name}</button>
-                </li>)}
-            </ul>
+    return <section className="w-full grid grid-cols-12 gap-0 shadow-lg shadow-slate-800 border border-black rounded-lg overflow-hidden divide-x divide-black">
+        <nav className="col-span-3 bg-slate-200">
+            <NavigationDirectory files={files} onSelect={handlerSelectFile} path={path}/>
         </nav>
-        <div className="col-span-9 bg-white max-w-4xl w-full flex flex-col shadow-lg shadow-slate-800 border border-black">
+        <div className="col-span-9 bg-white max-w-4xl w-full flex flex-col">
             <HeaderEditor
                 title={path}
                 rate={content.rate}

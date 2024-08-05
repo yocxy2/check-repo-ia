@@ -1,4 +1,5 @@
 import { NOT_RATE, CODE, ISSUES } from "@/tools/constants"
+import RateLabel from "./RateLabel"
 
 interface HeaderEditorProps {
     title: string,
@@ -13,7 +14,7 @@ interface HeaderEditorProps {
 export default function HeaderEditor({ title, rate, fixesCount, loading, currentTab, onCheck, onChange  }:HeaderEditorProps) {
 
     return <div className="border-b border-black border-opacity-50 py-2 px-4 font-bold text-lg flex flex-row justify-between items-center">
-        <label className="">{title} { rate===NOT_RATE ? "" : `(${rate})` }</label>
+        <label className="flex gap-5 items-center">{title}  { rate!==NOT_RATE && <RateLabel rate={rate}/> }</label>
         { rate===NOT_RATE && <button className="border border-black py-1 px-4 rounded-md" onClick={onCheck}>
             { loading ? "Checking..." : "Check" }
         </button>}
