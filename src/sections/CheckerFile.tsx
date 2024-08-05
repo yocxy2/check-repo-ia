@@ -17,6 +17,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
     const [loading, setLoading] = useState(false)
     const [content, setContent] = useState<ContentType>({
         value: "",
+        desecription: "",
         fixes: [],
         rate: NOT_RATE
     })
@@ -27,10 +28,12 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
         if ( object ) {
             setContent( (prev:any) => ({
                 ...prev,
+                description: object.description as string,
                 fixes: object.fixes as string[],
                 rate: object.rate as number
             }))
             sessionStorage.setItem(`${user}/${repo}/${path}`, JSON.stringify({
+                description: object.description as string,
                 fixes: object.fixes as string[],
                 rate: object.rate as number
             }))
@@ -48,10 +51,12 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
             const value = await response.text()
             setContent( {
                 value,
+                description: oldFileStoraged ? oldFileStoraged?.description : "",
                 fixes: oldFileStoraged ? oldFileStoraged?.fixes : [],
                 rate: oldFileStoraged ? oldFileStoraged?.rate : NOT_RATE
             })
             sessionStorage.setItem(`${user}/${repo}/${file}`, JSON.stringify({
+                description: oldFileStoraged ? oldFileStoraged?.description : "",
                 fixes: oldFileStoraged ? oldFileStoraged?.fixes : [],
                 rate: oldFileStoraged ? oldFileStoraged?.rate : NOT_RATE
             }))
@@ -91,7 +96,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
             { tab===ISSUES && <Editor
                 defaultLanguage="html"
                 defaultValue=""
-                value={ content?.fixes?.join('\n') }/>}
+                value={`## Descripcion \n${content?.description} \n\n## Posibles Mejoras \n${content?.fixes?.join('\n')} `}/>}
 
         </div>
     </section>

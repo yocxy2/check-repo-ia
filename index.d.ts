@@ -26,6 +26,7 @@ interface FileType{
 
 interface ContentType{
     value: string,
+    description: string,
     fixes: string[],
     rate: number
 }
