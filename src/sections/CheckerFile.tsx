@@ -79,7 +79,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
     }
 
 
-    return <section className="w-full grid grid-cols-12 gap-0 shadow-lg shadow-slate-800 border border-black rounded-lg overflow-hidden divide-x divide-black">
+    return <section className="z-20 w-full grid grid-cols-12 gap-0 shadow-lg shadow-slate-800 border border-black rounded-lg overflow-hidden divide-x divide-black">
         <nav className="col-span-3 bg-slate-200">
             <NavigationDirectory files={files} onSelect={handlerSelectFile} path={path}/>
         </nav>
