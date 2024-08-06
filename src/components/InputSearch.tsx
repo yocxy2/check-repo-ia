@@ -7,7 +7,12 @@ interface InputSearchProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function InputSearch({ onSearch, loading, ...rest}: InputSearchProps) {
 
-    return <form className="flex flex-col gap-0 w-full">
+    const handlerSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        onSearch && onSearch()
+    }
+
+    return <form className="flex flex-col gap-0 w-full" onSubmit={handlerSubmit}>
         <span className="text-slate-600 border border-indigo-600 bg-white rounded overflow-hidden py-1 px-2 flex flex-row gap-1 justify-between">
             <input type="text" className="w-full border-none outline-none" placeholder="https://github.com/user/repo" {...rest} />
             {!loading && <button type="button" onClick={onSearch} className="text-indigo-600">

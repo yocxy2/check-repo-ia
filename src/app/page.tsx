@@ -1,17 +1,40 @@
 "use client"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import InputSearch from "@/components/InputSearch"
 import Slider from "@/components/Slider"
+import { ERROR } from "@/tools/constants"
 
 export default function Page() {
     const router = useRouter()
+    const paramNames = useSearchParams()
     const [error, setError] = useState("")
     const [url, setUrl] = useState("")
 
+    useEffect(() => {
+        const errorKey = paramNames.get("error") as string
+        switch (errorKey) {
+            case ERROR.NOT_PUBLIC:
+                setError(ERROR.NOT_PUBLIC_DESC)
+                break;
+            case ERROR.INVALID_URL:
+                setError(ERROR.INVALID_URL_DESC)
+                break;
+            case ERROR.RATE_LIMIT:
+                setError(ERROR.RATE_LIMIT_DESC)
+                break;
+            case ERROR.NOT_FOUND:
+                setError(ERROR.NOT_FOUND_DESC)
+                break;
+            default:
+                setError(ERROR.NOT_RATE_DESC)
+                break;
+        }
+    },[paramNames])
+
     const getFromUrl = () => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
 
-    const handlerClick = async () => {
+    const handlerSearch = async () => {
         const [user, repo] = getFromUrl()
         if( !user || !repo ) {
             setError("URL inválida")
@@ -26,7 +49,7 @@ export default function Page() {
             <Slider />
         </div>
         <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20">
-            <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerClick} />
+            <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerSearch} />
             {error && <p className="w-full text-center italic py-2 text-red-500">{error}</p>}
         </div>
     </main>

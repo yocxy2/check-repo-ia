@@ -1,5 +1,6 @@
 import CheckerFile from "@/sections/CheckerFile"
 import { recursiveFetch } from "@/tools/common"
+import { ERROR } from "@/tools/constants"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -7,7 +8,7 @@ export default async function Page({ params }:{ params: { user: string, repo: st
     const { user, repo } = params
 
     const response = await fetch(`https://api.github.com/repos/${user}/${repo}`)
-    if( response.status !== 200 ) redirect("/?error=PRIVATE_REPO")
+    if( response.status !== 200 ) redirect("/?error="+ERROR.NOT_PUBLIC)
     const { default_branch } = await response.json()
 
     const result = await recursiveFetch(user, repo)
