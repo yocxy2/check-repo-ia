@@ -16,6 +16,23 @@ interface fileRepo {
 }
 
 interface FileType{
+    index: number,
     name: string,
     path: string,
+    numberFixes: number,
+    rate: number,
+    deep: number
+}
+
+interface ContentType{
+    value: string,
+    description: string,
+    fixes: string[],
+    rate: number
+}
+
+interface FileDirectoryType {
+    name: string,
+    path: string,
+    files: FileDirectoryType[]
 }

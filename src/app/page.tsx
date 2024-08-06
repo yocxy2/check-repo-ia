@@ -1,62 +1,33 @@
 "use client"
-import { useState } from "react";
-import Item from "./Item";
-import InputSearch from "@/components/InputSearch";
-import Filter from "@/components/Filter";
-import TableFiles from "@/components/TableFiles";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import InputSearch from "@/components/InputSearch"
+import Slider from "@/components/Slider"
 
+export default function Page() {
+    const router = useRouter()
+    const [error, setError] = useState("")
+    const [url, setUrl] = useState("")
 
-export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [url, setUrl] = useState("");
-  const [files, setFiles] = useState<FileType[]>([]);
-  const [path, setPath] = useState("");
+    const getFromUrl = () => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
 
+    const handlerClick = async () => {
+        const [user, repo] = getFromUrl()
+        if( !user || !repo ) {
+            setError("URL inválida")
+            setTimeout(()=>setError(""), 3000)
+            return
+        }
+        router.push(`/check/${user}/${repo}`)
+      }
 
-  const handlerClick = async () => {
-    setLoading(true)
-    try{
-      const [user, repo] = getFromUrl()
-      const response = await fetch(`/api/repo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ user, repo })
-      })
-      const data = await response.json() as FileType[]
-      console.log(data)
-      setFiles(data)
-    }catch(e){
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getFromUrl = () => url.replaceAll(/(http|https):\/\/github.com\//g, "").replace("/"," ").trim().split(" ")
-
-  const handlerFilterFiles = (file:FileType) => {
-    return file?.path?.includes(path)
-  }
-
-  return (
-    <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-4xl mx-auto">
-      <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerClick} loading={loading} />
-      <Filter path={path} onReset={()=>setPath("")} />
-      <section className="flex flex-col gap-4 w-full">
-        <TableFiles>
-          {files.filter(handlerFilterFiles).map((file:FileType, index:number) => (
-            <Item
-              key={index}
-              user={getFromUrl()[0]}
-              repo={getFromUrl()[1]}
-              file={file}
-              onClick={(selectedPath:string)=>setPath(selectedPath)}
-              />
-          ))}
-        </TableFiles>
-      </section>
+    return <main className="flex gap-8 min-h-screen flex-col items-center justify-center p-2 max-w-4xl mx-auto">
+        <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white p-10 w-2/3 z-20">
+            <Slider />
+        </div>
+        <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20">
+            <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerClick} />
+            {error && <p className="w-full text-center italic py-2 text-red-500">{error}</p>}
+        </div>
     </main>
-  );
 }
