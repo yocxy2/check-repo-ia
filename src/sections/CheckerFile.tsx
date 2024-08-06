@@ -1,20 +1,47 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useRef, useState } from "react"
 import { Editor } from "@monaco-editor/react"
 import { experimental_useObject as useObject } from "ai/react"
 import { parse } from "marked"
+import ReactCanvasConfetti from "react-canvas-confetti"
 import { checkSchema } from "@/app/api/file-check/schema"
 import HeaderEditor from "@/components/HeaderEditor"
 import NavigationDirectory from "@/components/NavigationDirectory"
 import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
+import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 
 
 export default function CheckerFile({ user, repo, files }: { user:string, repo:string, files: FileType[] }) {
-    const { submit, object, isLoading } = useObject({
+    const { submit, object, isLoading, stop } = useObject({
         api: "/api/file-check",
-        schema: checkSchema
+        schema: checkSchema,
+        onFinish: ({ object:responseObject, error }) => {
+            if( error ) return 
+            if( !responseObject ) return
+            setContent( (prev:any) => ({
+                ...prev,
+                description: responseObject.description as string,
+                fixes: responseObject.fixes as string[],
+                rate: responseObject.rate as number
+            }))
+            if( instanceConfetti?.current && object?.rate && object.rate>0.8){
+                instanceConfetti?.current({
+                    particleCount: 200,
+                    spread: 70,
+                    origin: { y: 0.8 },
+                })
+            }
+            sessionStorage.setItem(`${user}/${repo}/${path}`, JSON.stringify({
+                description: responseObject.description as string,
+                fixes: responseObject.fixes as string[],
+                rate: responseObject.rate as number
+            }))
+        },
+        onError: (error) => {
+            console.error(error)
+            stop()
+        }
     })
-    const [marked, setMarked] = useState("")
     const [tab, setTab] = useState(CODE)
     const [loading, setLoading] = useState(false)
     const [content, setContent] = useState<ContentType>({
@@ -24,24 +51,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
         rate: NOT_RATE
     })
     const [path, setPath] = useState("")
-
-
-    useEffect(()=>{
-        if ( object ) {
-            setContent( (prev:any) => ({
-                ...prev,
-                description: object.description as string,
-                fixes: object.fixes as string[],
-                rate: object.rate as number
-            }))
-            sessionStorage.setItem(`${user}/${repo}/${path}`, JSON.stringify({
-                description: object.description as string,
-                fixes: object.fixes as string[],
-                rate: object.rate as number
-            }))
-        }
-    },[object, user, repo, path])
-
+    const instanceConfetti = useRef<TCanvasConfettiInstance>()
 
     const handlerSelectFile = async (file:string) => {
         setLoading(true)
@@ -57,11 +67,6 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
                 fixes: oldFileStoraged ? oldFileStoraged?.fixes : [],
                 rate: oldFileStoraged ? oldFileStoraged?.rate : NOT_RATE
             })
-            sessionStorage.setItem(`${user}/${repo}/${file}`, JSON.stringify({
-                description: oldFileStoraged ? oldFileStoraged?.description : "",
-                fixes: oldFileStoraged ? oldFileStoraged?.fixes : [],
-                rate: oldFileStoraged ? oldFileStoraged?.rate : NOT_RATE
-            }))
         }catch(e){
             console.error(e)
         }
@@ -101,7 +106,9 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
                 loading={loading}
                 value={content.value}/>}
             { tab===ISSUES && <div id="preview-markup" className="p-4" dangerouslySetInnerHTML={{ __html: getMarked( `### Descripcion \n${content?.description} \n\n### Posibles Mejoras \n${content?.fixes?.join('\n')} ` ) }} />}
-
+            <ReactCanvasConfetti
+                onInit={ ({ confetti }:{ confetti:TCanvasConfettiInstance }) => instanceConfetti.current = confetti }
+            />
         </div>
     </section>
 }
