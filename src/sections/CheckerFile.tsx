@@ -11,7 +11,7 @@ import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
 import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 
 
-export default function CheckerFile({ user, repo, files }: { user:string, repo:string, files: FileType[] }) {
+export default function CheckerFile({ user, main, repo, files }: { user:string, main:string, repo:string, files: FileType[] }) {
     const { submit, object, isLoading, stop } = useObject({
         api: "/api/file-check",
         schema: checkSchema,
@@ -59,7 +59,7 @@ export default function CheckerFile({ user, repo, files }: { user:string, repo:s
         setPath(file)
         const oldFileStoraged = JSON.parse( sessionStorage.getItem(`${user}/${repo}/${file}`) as string)
         try{
-            const response = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/${file}`)
+            const response = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/${main}/${file}`)
             const value = await response.text()
             setContent( {
                 value,
