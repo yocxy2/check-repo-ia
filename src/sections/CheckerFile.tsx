@@ -102,7 +102,6 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
             { tab===CODE && <Editor
                 defaultLanguage="typescript"
                 defaultValue=""
-                onChange={(value) => false }
                 loading={loading}
                 value={content.value}/>}
             { tab===ISSUES && <div id="preview-markup" className="p-4" dangerouslySetInnerHTML={{ __html: getMarked( `### Descripcion \n${content?.description} \n\n### Posibles Mejoras \n${content?.fixes?.join('\n')} ` ) }} />}

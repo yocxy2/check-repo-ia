@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request:NextRequest) {
     const { user, repo } = await request.json()
-    console.log(user, repo)
     const files = await recursiveFetch(user, repo)
     return NextResponse.json( files.reduce( reducerMethod ,[]).map( (item:any, index:number)=> ({...item, index})) )
 }

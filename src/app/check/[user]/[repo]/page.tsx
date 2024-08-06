@@ -21,6 +21,10 @@ export default async function Page({ params }:{ params: { user: string, repo: st
                     <span className="font-bold">Repositorio:</span>
                     <Link href={`https://github.com/${user}/${repo}`} target="_blank" className="bg-yellow-200 hover:text-yellow-600 px-4 rounded-2xl">https://github.com/{user}/{repo}</Link>
                 </div>
+                <div className="flex flex-row gap-2">
+                    <span className="font-bold">Rama Principal:</span>
+                    <span className="px-4">{default_branch}</span>
+                </div>
             </div>
             <div className="flex items-center justify-center">
                 <Link href="/" className="text-indigo-600 flex flex-col items-center border border-indigo-600 rounded-lg p-2">

@@ -30,3 +30,9 @@ interface ContentType{
     fixes: string[],
     rate: number
 }
+
+interface FileDirectoryType {
+    name: string,
+    path: string,
+    files: FileDirectoryType[]
+}
