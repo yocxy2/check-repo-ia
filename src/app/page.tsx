@@ -27,7 +27,7 @@ export default function Page() {
                 setError(ERROR.NOT_FOUND_DESC)
                 break;
             default:
-                setError(ERROR.NOT_RATE_DESC)
+                setError("")
                 break;
         }
     },[paramNames])
