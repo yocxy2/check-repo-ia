@@ -7,13 +7,13 @@ import ReactCanvasConfetti from "react-canvas-confetti"
 import { checkSchema } from "@/app/api/file-check/schema"
 import HeaderEditor from "@/components/HeaderEditor"
 import NavigationDirectory from "@/components/NavigationDirectory"
-import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
+import { CODE, NOT_RATE, ISSUES, ROUTE } from "@/tools/constants"
 import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 
 
 export default function CheckerFile({ user, main, repo, files }: { user:string, main:string, repo:string, files: FileType[] }) {
     const { submit, isLoading, stop } = useObject({
-        api: "/api/file-check",
+        api: ROUTE.CHECK_FILE,
         schema: checkSchema,
         onFinish: ({ object:responseObject, error }) => {
             if( error ) return

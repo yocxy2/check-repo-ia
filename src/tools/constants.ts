@@ -13,3 +13,6 @@ export const ERROR = {
     'INVALID_URL_DESC': "La url ingresada no es válida",
     'NOT_PUBLIC_DESC': "El repositorio no es público",
 }
+export const ROUTE = {
+    CHECK_FILE: "/api/file-check",
+}
