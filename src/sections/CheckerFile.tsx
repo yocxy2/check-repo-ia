@@ -59,7 +59,12 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
         setPath(file)
         const oldFileStoraged = JSON.parse( sessionStorage.getItem(`${user}/${repo}/${file}`) as string)
         try{
-            const response = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/${main}/${file}`)
+            const token = localStorage.getItem("check-repo-token")
+            const headers = new Headers()
+            headers.set("Accept", "application/vnd.github.raw+json")
+            headers.set("X-GitHub-Api-Version","2022-11-28")
+            if( token ) headers.set("Authorization", `Bearer ${token}`)
+            const response = await fetch(`  https://api.github.com/repos/${user}/${repo}/contents/${file}?ref=${main}`, { headers })
             const value = await response.text()
             setContent( {
                 value,

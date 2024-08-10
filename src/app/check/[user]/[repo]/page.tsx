@@ -1,4 +1,5 @@
 import CheckerFile from "@/sections/CheckerFile"
+import { getToken } from "@/tools/action"
 import { recursiveFetch, getBranchMain } from "@/tools/common"
 import { ERROR } from "@/tools/constants"
 import Link from "next/link"
@@ -7,10 +8,11 @@ import { redirect } from "next/navigation"
 export default async function Page({ params }:{ params: { user: string, repo: string } }) {
     const { user, repo } = params
 
-    const default_branch = await getBranchMain(user, repo)
+    const token = await getToken()
+    const default_branch = await getBranchMain(user, repo, token)
     if( !default_branch ) redirect("/?error="+ERROR.NOT_PUBLIC)
 
-    const result = await recursiveFetch(user, repo)
+    const result = await recursiveFetch({user, repo, token})
 
     return <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-7xl mx-auto">
         <section className="bg-white rounded-lg text-left w-full text-lg z-20 shadow shadow-slate-800 p-4 flex flex-row justify-between">

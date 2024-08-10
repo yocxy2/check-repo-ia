@@ -13,8 +13,18 @@ export const checktFileType = (fileName:string) => {
 }
 
 
-export const recursiveFetch = async (user:string, repo:string, path:string = "", results:fileRepo[] = []) => {
-    const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {  })
+export const recursiveFetch = async (
+    {user, repo, token }:{user:string, repo:string, token?:string},
+    path:string = "",
+    results:fileRepo[] = []
+) => {
+    const headers = new Headers()
+    headers.set("Accept", "application/vnd.github+json")
+    headers.set("X-GitHub-Api-Version","2022-11-28")
+    if( token ) headers.set("Authorization", `Bearer ${token}`)
+    const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+        headers
+    })
     const data = await response.json()
 
     let files = data.filter( (item:fileRepo) => item?.type==='file' ).map((item:fileRepo, index:number) => ({ name:item.name, path:item.path, numberFixes: 0, rate:0, deep: item.name.split("/").length - 1 }) )
@@ -23,7 +33,7 @@ export const recursiveFetch = async (user:string, repo:string, path:string = "",
 
     if( folders.length === 0 ) return [...files, ...results]
     for( const folder of folders ) {
-        const filesInFolders = await recursiveFetch(user, repo, folder, results) as fileRepo[]
+        const filesInFolders = await recursiveFetch({user, repo, token}, folder, results) as fileRepo[]
         results.push(...filesInFolders)
     }
     return [...files, ...results].reduce( reducerMethod ,[]).map( (item:any, index:number)=> ({...item, index}) )
@@ -38,9 +48,23 @@ function finderMethod(pivotPath:string) {
     return ({ path }:{ path:string })=>path===pivotPath
 }
 
-export const getBranchMain = async (user:string, repo:string) => {
-    const response = await fetch(`https://api.github.com/repos/${user}/${repo}`)
+export const getBranchMain = async (user:string, repo:string, token?:string) => {
+    const headers = new Headers()
+    headers.set("Accept", "application/vnd.github+json")
+    headers.set("X-GitHub-Api-Version","2022-11-28")
+    if( token ) headers.set("Authorization", `Bearer ${token}`)
+    const response = await fetch(`https://api.github.com/repos/${user}/${repo}`, { headers})
     if( response.status !== 200 ) return null
     const { default_branch } = await response.json()
     return default_branch
 }
+
+
+export const generateGithubUrl = () => {
+    const search = new URLSearchParams()
+    search.set("client_id", process.env.GITHUB_CLIENT_ID as string)
+    search.set("redirect_uri", `${process.env.LOCALHOST}/success`)
+    return `https://github.com/login/oauth/authorize?${search.toString()}`
+}
+
+export const getFromUrl = (url:string) => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
