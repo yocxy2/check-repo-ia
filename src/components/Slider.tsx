@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import SideArrows from "./SideArrows"
 
 const list = [
@@ -22,22 +22,28 @@ const list = [
     }
 ]
 export default function Slider() {
+    const [intervalId, setIntervalId] = useState<NodeJS.Timeout>()
+
+    const moveSlide = (slides:NodeListOf<HTMLSpanElement>) => {
+        let index = Number( sessionStorage.getItem("index-slide") )
+        slides?.forEach((slide, i) => slide.style.opacity =  index===i ? '1' : '0' )
+        index = index === slides.length - 1 ? 0 : index + 1
+        sessionStorage.setItem("index-slide", index.toString())
+    }
+
     useEffect(() => {
         const slider = document.querySelector(".slider")
         const slides = slider?.querySelectorAll("span") as NodeListOf<HTMLSpanElement>
         if( slides && slides.length <= 1 ) return
         sessionStorage.setItem("index-slide", "1")
-        const intervalId = setInterval((slides:NodeListOf<HTMLSpanElement>) => {
-            let index = Number( sessionStorage.getItem("index-slide") )
-            slides?.forEach((slide, i) => slide.style.opacity =  index===i ? '1' : '0' )
-            index = index === slides.length - 1 ? 0 : index + 1
-            sessionStorage.setItem("index-slide", index.toString())
-        }, 5000, slides)
-        return () => clearInterval(intervalId)
+        const interval = setInterval(moveSlide, 5000, slides)
+        setIntervalId(interval)
+        return () => clearInterval(interval)
     }, [])
 
 
     const handlerChange = (value:1|-1) => {
+        if(intervalId) clearInterval(intervalId)
         const slider = document.querySelector(".slider")
         const slides = slider?.querySelectorAll("span") as NodeListOf<HTMLSpanElement>
         if( !slides ) return
@@ -50,6 +56,7 @@ export default function Slider() {
         if( index < 0 ) index = slides.length - 1
         if( index > slides.length - 1 ) index = 0
         slides[index].style.opacity = '1'
+        setIntervalId( setInterval(moveSlide, 5000, slides) )
     }
 
 
