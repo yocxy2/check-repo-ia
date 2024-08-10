@@ -16,7 +16,7 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
         api: "/api/file-check",
         schema: checkSchema,
         onFinish: ({ object:responseObject, error }) => {
-            if( error ) return 
+            if( error ) return
             if( !responseObject ) return
             setContent( (prev:any) => ({
                 ...prev,
@@ -24,7 +24,7 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
                 fixes: responseObject.fixes as string[],
                 rate: responseObject.rate as number
             }))
-            if( instanceConfetti?.current && object?.rate && object.rate>0.8){
+            if( instanceConfetti?.current && responseObject?.rate && responseObject.rate>0.8){
                 instanceConfetti?.current({
                     particleCount: 200,
                     spread: 70,
