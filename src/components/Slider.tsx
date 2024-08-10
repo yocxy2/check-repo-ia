@@ -60,7 +60,7 @@ export default function Slider() {
     }
 
 
-    return <div className="slider relative h-24" >{list.map( (item, index) => <span className={"absolute top-0 transition-opacity " + (index!==0 && "opacity-0")} key={item.title.replaceAll(" ","_")} data-id={index}>
+    return <div className="slider relative h-24" >{list.map( (item, index) => <span className={"absolute top-0 transition-opacity " + (index!==0 && "opacity-0")} key={index+item.title.replaceAll(" ","_")} data-id={index}>
         <h2 className="text-lg font-bold mb-2">{ item.title }</h2>
         <p className="text-md" dangerouslySetInnerHTML={{ __html:item.description }} />
         <div className="flex flex-row gap-2 items-center justify-end">

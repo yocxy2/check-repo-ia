@@ -12,7 +12,7 @@ import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 
 
 export default function CheckerFile({ user, main, repo, files }: { user:string, main:string, repo:string, files: FileType[] }) {
-    const { submit, object, isLoading, stop } = useObject({
+    const { submit, isLoading, stop } = useObject({
         api: "/api/file-check",
         schema: checkSchema,
         onFinish: ({ object:responseObject, error }) => {
@@ -24,7 +24,7 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
                 fixes: responseObject.fixes as string[],
                 rate: responseObject.rate as number
             }))
-            if( instanceConfetti?.current && responseObject?.rate && responseObject.rate>0.8){
+            if( instanceConfetti?.current && responseObject?.rate && responseObject.rate>80){
                 instanceConfetti?.current({
                     particleCount: 200,
                     spread: 70,
