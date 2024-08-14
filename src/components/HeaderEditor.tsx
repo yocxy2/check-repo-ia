@@ -17,10 +17,10 @@ export default function HeaderEditor({ title, rate, fixesCount, loading, current
 
     return <div className="border-b border-black border-opacity-50 py-2 px-4 font-bold text-lg flex flex-row justify-between items-center">
         <label className="flex gap-5 items-center">{title}  { rate!==NOT_RATE && <RateLabel rate={rate}/> }</label>
-        <div className="flex flex-row gap-1 items-center">
-            <button className="border border-indigo-600 text-indigo-600 py-1 px-4 rounded-md text-sm font-bold" onClick={onCheck}>
+        <div className="flex flex-row gap-1 items-center h-8">
+            { title && <button className="border border-indigo-600 text-indigo-600 py-1 px-4 rounded-md text-sm font-bold" onClick={onCheck}>
                 { labelCheck() }
-            </button>
+            </button>}
             { rate!==NOT_RATE && <nav className="text-sm font-normal flex flex-row p-0  border border-black rounded-lg overflow-hidden divide-x divide-black" >
                 <button className={currentTab===CODE ? "bg-slate-300 font-semibold py-1 px-2" : "py-1 px-2"} onClick={()=>onChange(CODE)}>Code</button>
                 <button className={currentTab===ISSUES ? "bg-slate-300 font-semibold py-1 px-2" : "py-1 px-2"} onClick={()=>onChange(ISSUES)}>Issues ({ fixesCount })</button>

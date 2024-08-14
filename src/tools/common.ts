@@ -48,16 +48,18 @@ function finderMethod(pivotPath:string) {
     return ({ path }:{ path:string })=>path===pivotPath
 }
 
-export const getBranchMain = async (user:string, repo:string, token?:string) => {
+export const getBranchDetail = async (user:string, repo:string, token?:string) => {
     const headers = new Headers()
     headers.set("Accept", "application/vnd.github+json")
     headers.set("X-GitHub-Api-Version","2022-11-28")
     if( token ) headers.set("Authorization", `Bearer ${token}`)
     const response = await fetch(`https://api.github.com/repos/${user}/${repo}`, { headers})
-    if( response.status !== 200 ) return null
-    const { default_branch } = await response.json()
-    return default_branch
+    if( response.status !== 200 ) return { default_branch:"", visibility:"", language:""}
+    const { default_branch, visibility, language } =  await response.json()
+    return { default_branch, visibility, language }
 }
+
+export const getFromUrl = (url:string) => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
 
 
 export const generateGithubUrl = () => {
@@ -66,5 +68,3 @@ export const generateGithubUrl = () => {
     search.set("redirect_uri", `${process.env.LOCALHOST}/success`)
     return `https://github.com/login/oauth/authorize?${search.toString()}`
 }
-
-export const getFromUrl = (url:string) => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")

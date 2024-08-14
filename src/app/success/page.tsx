@@ -15,11 +15,10 @@ export default function Page({ searchParams }:{ searchParams: { code: string } }
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code })
             })
-            const json = await response.json()
-            console.log(json)
-            const { error, description, data } = json
+            const { error, description, data } = await response.json()
             if( error ) setError(description)
             else {
+                localStorage.setItem("check-repo-time", Date.now().toString())
                 localStorage.setItem("check-repo-token", data.access_token)
                 router.push("/")
             }

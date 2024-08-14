@@ -9,9 +9,21 @@ import HeaderEditor from "@/components/HeaderEditor"
 import NavigationDirectory from "@/components/NavigationDirectory"
 import { CODE, NOT_RATE, ISSUES, ROUTE } from "@/tools/constants"
 import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
+import GithubService from "@/tools/GithubService"
+import { toast } from "react-toastify"
+import ToastMessage from "@/components/ToastMessage"
+
+interface CheckerFileProps {
+    user:string
+    main:string
+    repo:string
+    files: FileType[]
+    language: string
+    visibility: string
+}
 
 
-export default function CheckerFile({ user, main, repo, files }: { user:string, main:string, repo:string, files: FileType[] }) {
+export default function CheckerFile({ user, main, repo, files }: CheckerFileProps)  {
     const { submit, isLoading, stop } = useObject({
         api: ROUTE.CHECK_FILE,
         schema: checkSchema,
@@ -39,6 +51,7 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
         },
         onError: (error) => {
             console.error(error)
+            toast.error(error.message)
             stop()
         }
     })
@@ -60,20 +73,19 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
         const oldFileStoraged = JSON.parse( sessionStorage.getItem(`${user}/${repo}/${file}`) as string)
         try{
             const token = localStorage.getItem("check-repo-token")
-            const headers = new Headers()
-            headers.set("Accept", "application/vnd.github.raw+json")
-            headers.set("X-GitHub-Api-Version","2022-11-28")
-            if( token ) headers.set("Authorization", `Bearer ${token}`)
-            const response = await fetch(`  https://api.github.com/repos/${user}/${repo}/contents/${file}?ref=${main}`, { headers })
-            const value = await response.text()
+            const { data:value, error, description } = await GithubService.getContentFile(user, repo, file, main, token as string)
+            if( error ) throw new Error(description)
             setContent( {
                 value,
                 description: oldFileStoraged ? oldFileStoraged?.description : "",
                 fixes: oldFileStoraged ? oldFileStoraged?.fixes : [],
                 rate: oldFileStoraged ? oldFileStoraged?.rate : NOT_RATE
             })
-        }catch(e){
+        }catch(e:any){
             console.error(e)
+            toast.error(e.message)
+            setTab(tab)
+            setPath(path)
         }
         finally{
             setLoading(false)
@@ -114,5 +126,6 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
                 onInit={ ({ confetti }:{ confetti:TCanvasConfettiInstance }) => instanceConfetti.current = confetti }
             />
         </div>
+        <ToastMessage />
     </section>
 }

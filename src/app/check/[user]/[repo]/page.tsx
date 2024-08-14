@@ -1,6 +1,6 @@
 import CheckerFile from "@/sections/CheckerFile"
 import { getToken } from "@/tools/action"
-import { recursiveFetch, getBranchMain } from "@/tools/common"
+import { recursiveFetch, getBranchDetail } from "@/tools/common"
 import { ERROR } from "@/tools/constants"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -9,7 +9,7 @@ export default async function Page({ params }:{ params: { user: string, repo: st
     const { user, repo } = params
 
     const token = await getToken()
-    const default_branch = await getBranchMain(user, repo, token)
+    const { default_branch, visibility, language } = await getBranchDetail(user, repo, token)
     if( !default_branch ) redirect("/?error="+ERROR.NOT_PUBLIC)
 
     const result = await recursiveFetch({user, repo, token})
@@ -37,6 +37,13 @@ export default async function Page({ params }:{ params: { user: string, repo: st
                 </Link>
             </div>
         </section>
-        <CheckerFile files={result} main={default_branch} user={user} repo={repo} />
+        <CheckerFile
+            files={result}
+            main={default_branch}
+            user={user}
+            repo={repo}
+            visibility={visibility}
+            language={language}
+        />
     </main>
 }
