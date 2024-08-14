@@ -7,7 +7,7 @@ interface HeaderEditorProps {
     fixesCount: number,
     loading: boolean,
     currentTab: string,
-    onCheck: ()=>void,
+    onCheck?: ()=>void,
     onChange: (tab:string)=>void
 }
 

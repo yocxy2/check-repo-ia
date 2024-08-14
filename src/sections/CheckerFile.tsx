@@ -12,18 +12,35 @@ import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 import GithubService from "@/tools/GithubService"
 import { toast } from "react-toastify"
 import ToastMessage from "@/components/ToastMessage"
+import CodeEditor from "@/components/CodeEditor"
 
 interface CheckerFileProps {
-    user:string
-    main:string
-    repo:string
-    files: FileType[]
-    language: string
-    visibility: string
+    repo?:{
+        user?:string
+        main?:string
+        name?:string
+        language?: string
+        visibility?: string
+    }
+    files?: FileType[]
 }
 
+const defaultRepoProps = {
+    user: "",
+    main: "",
+    name: "",
+    language: "",
+    visibility: ""
+}
 
-export default function CheckerFile({ user, main, repo, files }: CheckerFileProps)  {
+export default function CheckerFile({
+    repo:{
+        user,
+        name,
+        main
+    }=defaultRepoProps,
+    files
+}: CheckerFileProps)  {
     const { submit, isLoading, stop } = useObject({
         api: ROUTE.CHECK_FILE,
         schema: checkSchema,
@@ -43,7 +60,7 @@ export default function CheckerFile({ user, main, repo, files }: CheckerFileProp
                     origin: { y: 0.8 },
                 })
             }
-            sessionStorage.setItem(`${user}/${repo}/${path}`, JSON.stringify({
+            sessionStorage.setItem(`${user}/${name}/${path}`, JSON.stringify({
                 description: responseObject.description as string,
                 fixes: responseObject.fixes as string[],
                 rate: responseObject.rate as number
@@ -70,10 +87,11 @@ export default function CheckerFile({ user, main, repo, files }: CheckerFileProp
         setLoading(true)
         setTab(CODE)
         setPath(file)
-        const oldFileStoraged = JSON.parse( sessionStorage.getItem(`${user}/${repo}/${file}`) as string)
+        const oldFileStoraged = JSON.parse( sessionStorage.getItem(`${user}/${name}/${file}`) as string)
         try{
+            if( !user || !name || !main ) throw new Error("No se ha podido obtener el usuario, repositorio o rama principal")
             const token = localStorage.getItem("check-repo-token")
-            const { data:value, error, description } = await GithubService.getContentFile(user, repo, file, main, token as string)
+            const { data:value, error, description } = await GithubService.getContentFile(user as string, name as string, file, main as string, token as string)
             if( error ) throw new Error(description)
             setContent( {
                 value,
@@ -96,36 +114,35 @@ export default function CheckerFile({ user, main, repo, files }: CheckerFileProp
         submit({ file: path, content: content.value })
     }
 
-    const getMarked = (text:string) => {
-        return parse(text, {  gfm:true, breaks:true  } ) as string
+    const handleChangeTitle = (value:string) => {
+        if( files ) return
+        setContent( (prev:any) => ({
+            ...prev,
+            value
+        }))
+        setPath(value.slice(0, 40))
     }
 
 
     return <section className="z-20 w-full grid grid-cols-12 gap-0 shadow-lg shadow-slate-800 border border-black rounded-lg overflow-hidden divide-x divide-black">
-        <nav className="col-span-3 bg-slate-200">
+        {files &&<nav className="col-span-3 bg-slate-200">
             <NavigationDirectory files={files} onSelect={handlerSelectFile} path={path}/>
-        </nav>
-        <div className="col-span-9 bg-white max-w-4xl w-full flex flex-col">
-            <HeaderEditor
-                title={path}
-                rate={content.rate}
-                fixesCount={content.fixes.length}
-                loading={isLoading}
-                currentTab={tab}
-                onCheck={handlerCheckFile}
-                onChange={setTab}
-             />
-
-            { tab===CODE && <Editor
-                defaultLanguage="typescript"
-                defaultValue=""
-                loading={loading}
-                value={content.value}/>}
-            { tab===ISSUES && <div id="preview-markup" className="p-4" dangerouslySetInnerHTML={{ __html: getMarked( `### Descripcion \n${content?.description} \n\n### Posibles Mejoras \n${content?.fixes?.join('\n')} ` ) }} />}
-            <ReactCanvasConfetti
-                onInit={ ({ confetti }:{ confetti:TCanvasConfettiInstance }) => instanceConfetti.current = confetti }
-            />
-        </div>
+        </nav>}
+        <CodeEditor
+            className={ (files ? "col-span-9 max-w-4xl" : "col-span-12 ") + " bg-white w-full min-h-96 flex flex-col"}
+            title={path}
+            value={content?.value}
+            description={content?.description}
+            loading={loading}
+            checking={isLoading}
+            rate={content?.rate}
+            fixes={content?.fixes}
+            onChange={handleChangeTitle}
+            onCheck={handlerCheckFile}
+        />
+        <ReactCanvasConfetti
+            onInit={ ({ confetti }:{ confetti:TCanvasConfettiInstance }) => instanceConfetti.current = confetti }
+        />
         <ToastMessage />
     </section>
 }

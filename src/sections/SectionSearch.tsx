@@ -26,7 +26,7 @@ export default function SectionSearch({ errorDefault }: { errorDefault:string })
       }
 
     return <Suspense>
-        <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20">
+        <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20 hover:shadow-indigo-300">
             <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerSearch} loading={loading}/>
             {error && <p className="w-full text-center italic py-2 text-red-500">{error}</p>}
         </div>
