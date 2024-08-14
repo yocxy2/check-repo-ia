@@ -1,15 +1,7 @@
-import CodeEditor from "@/components/CodeEditor"
 import CheckerFile from "@/sections/CheckerFile"
-
-import { getToken } from "@/tools/action"
-import { recursiveFetch, getBranchDetail } from "@/tools/common"
-import { ERROR } from "@/tools/constants"
 import Link from "next/link"
-import { redirect } from "next/navigation"
 
 export default async function Page() {
-    const token = await getToken()
-
 
     return <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-7xl mx-auto">
         <section className="bg-white rounded-lg text-left w-full text-lg z-20 shadow shadow-slate-800 p-4 flex flex-row justify-between">
