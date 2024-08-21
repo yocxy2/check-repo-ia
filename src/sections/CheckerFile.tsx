@@ -7,16 +7,16 @@ import ReactCanvasConfetti from "react-canvas-confetti"
 import { checkSchema } from "@/app/api/file-check/schema"
 import HeaderEditor from "@/components/HeaderEditor"
 import NavigationDirectory from "@/components/NavigationDirectory"
-import { CODE, NOT_RATE, ISSUES } from "@/tools/constants"
+import { CODE, NOT_RATE, ISSUES, ROUTE } from "@/tools/constants"
 import { TCanvasConfettiInstance } from "react-canvas-confetti/dist/types"
 
 
 export default function CheckerFile({ user, main, repo, files }: { user:string, main:string, repo:string, files: FileType[] }) {
-    const { submit, object, isLoading, stop } = useObject({
-        api: "/api/file-check",
+    const { submit, isLoading, stop } = useObject({
+        api: ROUTE.CHECK_FILE,
         schema: checkSchema,
         onFinish: ({ object:responseObject, error }) => {
-            if( error ) return 
+            if( error ) return
             if( !responseObject ) return
             setContent( (prev:any) => ({
                 ...prev,
@@ -24,7 +24,7 @@ export default function CheckerFile({ user, main, repo, files }: { user:string, 
                 fixes: responseObject.fixes as string[],
                 rate: responseObject.rate as number
             }))
-            if( instanceConfetti?.current && object?.rate && object.rate>0.8){
+            if( instanceConfetti?.current && responseObject?.rate && responseObject.rate>80){
                 instanceConfetti?.current({
                     particleCount: 200,
                     spread: 70,

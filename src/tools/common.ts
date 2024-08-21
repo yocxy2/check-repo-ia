@@ -37,3 +37,10 @@ function reducerMethod(acc:FileType[], item:FileType) {
 function finderMethod(pivotPath:string) {
     return ({ path }:{ path:string })=>path===pivotPath
 }
+
+export const getBranchMain = async (user:string, repo:string) => {
+    const response = await fetch(`https://api.github.com/repos/${user}/${repo}`)
+    if( response.status !== 200 ) return null
+    const { default_branch } = await response.json()
+    return default_branch
+}

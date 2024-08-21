@@ -8,6 +8,7 @@ import { ERROR } from "@/tools/constants"
 export default function Page() {
     const router = useRouter()
     const paramNames = useSearchParams()
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [url, setUrl] = useState("")
 
@@ -35,10 +36,12 @@ export default function Page() {
     const getFromUrl = () => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
 
     const handlerSearch = async () => {
+        setLoading(true)
         const [user, repo] = getFromUrl()
         if( !user || !repo ) {
             setError("URL inválida")
             setTimeout(()=>setError(""), 3000)
+            setLoading(false)
             return
         }
         router.push(`/check/${user}/${repo}`)
@@ -50,7 +53,7 @@ export default function Page() {
                 <Slider />
             </div>
             <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20">
-                <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerSearch} />
+                <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerSearch} loading={loading}/>
                 {error && <p className="w-full text-center italic py-2 text-red-500">{error}</p>}
             </div>
         </main>

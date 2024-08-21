@@ -36,7 +36,7 @@ export default function NavigationDirectory({ files, onSelect, path}:NavigationD
 
     return (
         <div className="flex flex-col items-start justify-start w-full p-4">
-            { paths.map( (pathName, index) => <div key={index} className="flex flex-col items-start justify-start w-full">
+            { paths.map( (pathName, index) => <div key={`folderid-${index}`} className="flex flex-col items-start justify-start w-full">
                 <div className="font-bold ">/ { pathName }</div>
                 <ListFile files={ files.filter( file => file.path.split("/").slice(0,-1).join("/")===pathName ) } onSelect={onSelect} path={path} />
             </div>)}

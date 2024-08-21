@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import SideArrows from "./SideArrows"
 
 const list = [
@@ -22,38 +22,45 @@ const list = [
     }
 ]
 export default function Slider() {
+    const [index, setIndex] = useState(0)
+    const [intervalId, setIntervalId] = useState<NodeJS.Timeout>()
+
+    const moveSlide = (slides:NodeListOf<HTMLSpanElement>) => {
+        setIndex( (prevIndex:number) => {
+            slides[prevIndex].style.opacity = '0'
+            return prevIndex === slides.length - 1 ? 0 : prevIndex + 1
+        } )
+    }
+
     useEffect(() => {
         const slider = document.querySelector(".slider")
         const slides = slider?.querySelectorAll("span") as NodeListOf<HTMLSpanElement>
         if( slides && slides.length <= 1 ) return
-        sessionStorage.setItem("index-slide", "1")
-        const intervalId = setInterval((slides:NodeListOf<HTMLSpanElement>) => {
-            let index = Number( sessionStorage.getItem("index-slide") )
-            slides?.forEach((slide, i) => slide.style.opacity =  index===i ? '1' : '0' )
-            index = index === slides.length - 1 ? 0 : index + 1
-            sessionStorage.setItem("index-slide", index.toString())
-        }, 5000, slides)
-        return () => clearInterval(intervalId)
+        const interval = setInterval(moveSlide, 5000, slides)
+        setIntervalId(interval)
+        return () => clearInterval(interval)
     }, [])
 
+    useEffect(() => {
+        const slider = document.querySelector(".slider")
+        const slides = slider?.querySelectorAll("span") as NodeListOf<HTMLSpanElement>
+        slides[index].style.opacity = '1'
+    }, [index])
 
     const handlerChange = (value:1|-1) => {
+        if(intervalId) clearInterval(intervalId)
         const slider = document.querySelector(".slider")
         const slides = slider?.querySelectorAll("span") as NodeListOf<HTMLSpanElement>
         if( !slides ) return
-        let index = 0
-        slides.forEach((slide, i) => {
-            if( slide.style.opacity === "1" ) index = i
-        })
         slides[index].style.opacity = '0'
-        index = index + value
-        if( index < 0 ) index = slides.length - 1
-        if( index > slides.length - 1 ) index = 0
-        slides[index].style.opacity = '1'
+        if( index + value < 0 ) setIndex( slides.length - 1 )
+        else if( index + value > slides.length - 1 ) setIndex(0)
+        else setIndex( index + value )
+        setIntervalId( setInterval(moveSlide, 5000, slides) )
     }
 
 
-    return <div className="slider relative h-24" >{list.map( (item, index) => <span className={"absolute top-0 transition-opacity " + (index!==0 && "opacity-0")} key={item.title.replaceAll(" ","_")} data-id={index}>
+    return <div className="slider relative h-24" >{list.map( (item, index) => <span className={"absolute top-0 transition-opacity " + (index!==0 && "opacity-0")} key={index+item.title.replaceAll(" ","_")} data-id={index}>
         <h2 className="text-lg font-bold mb-2">{ item.title }</h2>
         <p className="text-md" dangerouslySetInnerHTML={{ __html:item.description }} />
         <div className="flex flex-row gap-2 items-center justify-end">
