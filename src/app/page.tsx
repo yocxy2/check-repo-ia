@@ -1,61 +1,31 @@
-"use client"
-import { useEffect, useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import InputSearch from "@/components/InputSearch"
 import Slider from "@/components/Slider"
 import { ERROR } from "@/tools/constants"
+import ButtonGithub from "@/components/ButtonGithub"
+import { generateGithubUrl } from "@/tools/common"
+import SectionSearch from "@/sections/SectionSearch"
 
-export default function Page() {
-    const router = useRouter()
-    const paramNames = useSearchParams()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState("")
-    const [url, setUrl] = useState("")
+export default function Page({ searchParams }: { searchParams: { error:string } }) {
+    const { error } = searchParams
 
-    useEffect(() => {
-        const errorKey = paramNames.get("error") as string
-        switch (errorKey) {
-            case ERROR.NOT_PUBLIC:
-                setError(ERROR.NOT_PUBLIC_DESC)
-                break;
-            case ERROR.INVALID_URL:
-                setError(ERROR.INVALID_URL_DESC)
-                break;
-            case ERROR.RATE_LIMIT:
-                setError(ERROR.RATE_LIMIT_DESC)
-                break;
-            case ERROR.NOT_FOUND:
-                setError(ERROR.NOT_FOUND_DESC)
-                break;
-            default:
-                setError("")
-                break;
-        }
-    },[paramNames])
+    const messageError = {
+        [`${ERROR.NOT_PUBLIC}`]: ERROR.NOT_PUBLIC_DESC,
+        [`${ERROR.INVALID_URL}`]: ERROR.INVALID_URL_DESC,
+        [`${ERROR.RATE_LIMIT}`]: ERROR.RATE_LIMIT_DESC,
+        [`${ERROR.NOT_FOUND}`]: ERROR.NOT_FOUND_DESC,
+    }[error]
 
-    const getFromUrl = () => url.replaceAll(/(http|https):\/\/github.com\//g, "").replaceAll(/\?.{1,}/g,"").replaceAll("/"," ").trim().split(" ")
+    const href = generateGithubUrl()
 
-    const handlerSearch = async () => {
-        setLoading(true)
-        const [user, repo] = getFromUrl()
-        if( !user || !repo ) {
-            setError("URL inválida")
-            setTimeout(()=>setError(""), 3000)
-            setLoading(false)
-            return
-        }
-        router.push(`/check/${user}/${repo}`)
-      }
-
-    return <Suspense>
-        <main className="flex gap-8 min-h-screen flex-col items-center justify-center p-2 max-w-4xl mx-auto">
-            <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white p-10 w-2/3 z-20">
+    return <main className="flex gap-8 min-h-screen flex-col items-center justify-center p-2 max-w-4xl mx-auto">
+            <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white p-10 w-2/3 z-20 hover:shadow-indigo-300">
                 <Slider />
             </div>
-            <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white py-20 px-10 w-2/3 z-20">
-                <InputSearch value={url} onChange={e=>setUrl(e.target.value)} onSearch={handlerSearch} loading={loading}/>
-                {error && <p className="w-full text-center italic py-2 text-red-500">{error}</p>}
+            <SectionSearch errorDefault={messageError}/>
+            <div className="border border-indigo-100 shadow-lg shadow-indigo-200 rounded-lg bg-white p-10 w-2/3 z-20 hover:shadow-indigo-300">
+                <p className="text-left">Accede con tu cuenta de github para mejores caracteristicas</p>
+                <span className="flex w-fit mx-auto mt-2">
+                    <ButtonGithub label="Acceder con Github" href={href}/>
+                </span>
             </div>
         </main>
-    </Suspense>
 }

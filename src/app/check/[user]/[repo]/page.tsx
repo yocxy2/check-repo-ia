@@ -1,5 +1,6 @@
 import CheckerFile from "@/sections/CheckerFile"
-import { recursiveFetch, getBranchMain } from "@/tools/common"
+import { getToken } from "@/tools/action"
+import { recursiveFetch, getBranchDetail } from "@/tools/common"
 import { ERROR } from "@/tools/constants"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -7,16 +8,17 @@ import { redirect } from "next/navigation"
 export default async function Page({ params }:{ params: { user: string, repo: string } }) {
     const { user, repo } = params
 
-    const default_branch = await getBranchMain(user, repo)
+    const token = await getToken()
+    const { default_branch, visibility, language } = await getBranchDetail(user, repo, token)
     if( !default_branch ) redirect("/?error="+ERROR.NOT_PUBLIC)
 
-    const result = await recursiveFetch(user, repo)
+    const result = await recursiveFetch({user, repo, token})
 
     return <main className="flex gap-8 min-h-screen flex-col items-center justify-start p-24 max-w-7xl mx-auto">
         <section className="bg-white rounded-lg text-left w-full text-lg z-20 shadow shadow-slate-800 p-4 flex flex-row justify-between">
             <div className="gap-3 flex flex-col">
                 <h2 className="text-2xl font-bold">¿Cuan bien has hecho tu trabajo?</h2>
-                <p>Selecciona el archivo que deseas revisar y presion el boton <span className="font-bold text-indigo-600">Check</span></p>
+                <p>Selecciona el archivo que deseas revisar y presiona el botón <span className="font-bold text-indigo-600">Check</span></p>
                 <div className="flex flex-row gap-2">
                     <span className="font-bold">Repositorio:</span>
                     <Link href={`https://github.com/${user}/${repo}`} target="_blank" className="bg-yellow-200 hover:text-yellow-600 px-4 rounded-2xl">https://github.com/{user}/{repo}</Link>
@@ -35,6 +37,15 @@ export default async function Page({ params }:{ params: { user: string, repo: st
                 </Link>
             </div>
         </section>
-        <CheckerFile files={result} main={default_branch} user={user} repo={repo} />
+        <CheckerFile
+            files={result}
+            repo={{
+                name:repo,
+                user,
+                main:default_branch as string,
+                visibility,
+                language
+            }}
+        />
     </main>
 }
